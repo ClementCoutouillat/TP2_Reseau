@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <netdb.h>
+#include <string.h>
+#define MAXSIZE 2048
+
+int main(int argc,char **argv) {
+
+    char fileName;
+    if(argc !=4){
+        printf("Wrong usage \nPls use  %s hostname port file\n",argv[0]);
+        exit(EXIT_FAILURE);
+    }
+    printf("Welcome to 2g1tp1's implementation of tftp client\n");
+
+    struct addrinfo *result;
+    struct addrinfo hints;
+    memset(&hints,0,sizeof(struct addrinfo));
+    hints.ai_family = AF_INET;
+    hints.ai_protocol=IPPROTO_UDP;
+    int status;
+    status = getaddrinfo(argv[1],argv[2],&result,&hints);
+    if(status ==-1){
+        printf("it seems like i ain't find the host %s\n",argv[1]);
+    }
+
+    char *buffer[MAXSIZE]= {0};
+    buffer[1]=2;
+    sprintf(buffer+2,"%s",argv[3]);
+    sprintf(buffer +3+strlen(argv[3]),"NETASCII");
+
+    printf("Sending %s to the host : %s@%s\n",argv[3],argv[1],argv[2]);
+
+    int sock = socket(result->ai_family,result->ai_socktype,result->ai_protocol);
+
+    if(sock == 1){
+        perror("socket error");
+        exit(EXIT_FAILURE);
+    }
+    sendto(sock,buffer,12+sizeof(argv[3]),0,result->ai_addr,result->ai_addr);
+    return 0;
+}
